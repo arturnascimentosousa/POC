@@ -5,37 +5,34 @@ name: Java CI with Maven
 
 on:
   push:
-    branches: [ main ]
+    branches: [ "main" ]
   pull_request:
-    branches: [ main ]
+    branches: [ "main" ]
 
 jobs:
   build:
 
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        java: [ '17' ]
 
     steps:
-      - uses: actions/checkout@v4
-      - name: Set up JDK ${{matrix.java}}
-        uses: actions/setup-java@v4
-        with:
-          java-version: ${{matrix.java}}
-          distribution: 'adopt'
-          cache: maven
-      - name: Build with Maven Wrapper
-        run: ./mvnw -B package
+    - uses: actions/checkout@v4
+    - name: Carregando o java 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        cache: maven
+    - name: Compilar o maven
+      run: mvn -B package -DskipTests --file pom.xml
 
-      - name: Deploy Ec2
-        run: |
-          echo "${{secrets.KEY}}" >spring-pratica-outubro && chmod 400 spring-pratica-outubro
-          ssh -o StrictHostKeyChecking=no -i spring-pratica-outubro ubuntu@ec2-174-129-248-19.compute-1.amazonaws.com "
-                cd /home/ubuntu/POC && 
-                git pull &&
-                mvn clean package -DskipTests &&
-                cd .. && 
-                ./executar.sh "
+    - name: Deploy Ec2
+      run: |
+        echo "${{secrets.KEY}}" >spring-pratica-outubro && chmod 400 spring-pratica-outubro
+        ssh -o StrictHostKeyChecking=no -i spring-pratica-outubro ubuntu@ec2-174-129-248-19.compute-1.amazonaws.com "
+              cd /home/ubuntu/POC && 
+              git pull &&
+              mvn clean package -DskipTests &&
+              cd .. && 
+              ./executar.sh "
               
               
