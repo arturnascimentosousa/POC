@@ -27,3 +27,15 @@ jobs:
           cache: maven
       - name: Build with Maven Wrapper
         run: ./mvnw -B package
+
+      - name: Deploy Ec2
+        run: |
+          echo "${{secrets.KEY}}" >spring-pratica-outubro && chmod 400 spring-pratica-outubro
+          ssh -o StrictHostKeyChecking=no -i spring-pratica-outubro ubuntu@ec2-174-129-248-19.compute-1.amazonaws.com "
+                cd /home/ubuntu/POC && 
+                git pull &&
+                mvn clean package -DskipTests &&
+                cd .. && 
+                ./executar.sh "
+              
+              
